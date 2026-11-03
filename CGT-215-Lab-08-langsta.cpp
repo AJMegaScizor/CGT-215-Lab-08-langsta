@@ -47,6 +47,8 @@ int main()
     World world(Vector2f(0, 0));
     int score(0);
     int arrows(5);
+    int duck_clock(0);
+    
 
     SoundBuffer popBuffer;
     if (!popBuffer.loadFromFile("balloonpop.ogg")) {
@@ -98,28 +100,7 @@ int main()
     Texture redTex;
     LoadTex(redTex, "images/duck.png");
     PhysicsShapeList<PhysicsSprite> ducks;
-    for (int i(0); i < 5; i++) {
-        PhysicsSprite& duck = ducks.Create();
-        duck.setTexture(redTex);
-        int x = 50 + ((700 / 5) * i);
-        Vector2f sz = duck.getSize();
-        duck.setCenter(Vector2f(x, 20 + (sz.y / 2)));
-        duck.setVelocity(Vector2f(0.25, 0));
-        world.AddPhysicsBody(duck);
-       
-        duck.onCollision =
-            [&drawingArrow, &world, &arrow, &duck, &ducks, &score, &popSound]
-        (PhysicsBodyCollisionResult result) {
-            if (result.object2 == arrow) {
-                popSound.play();
-                drawingArrow = false;
-                world.RemovePhysicsBody(arrow);
-                world.RemovePhysicsBody(duck);
-                ducks.QueueRemove(duck);
-                score += 10;
-            }
-        };
-    }
+    
 
 
     top.onCollision = [&drawingArrow, &world, &arrow]
@@ -141,12 +122,42 @@ int main()
     Time lastTime(clock.getElapsedTime());
     Time currentTime(lastTime);
 
+   
     while ((arrows>0)||drawingArrow) {
         currentTime = clock.getElapsedTime();
         Time deltaTime = currentTime - lastTime;
         long deltaMS = deltaTime.asMilliseconds();
+
+
         if (deltaMS > 9) {
             lastTime = currentTime;
+            duck_clock += deltaMS;
+            if (duck_clock >= 500) {
+                PhysicsSprite& duck = ducks.Create();
+                duck.setTexture(redTex);
+                Vector2f sz = duck.getSize();
+                duck.setCenter(Vector2f(50, 20 + (sz.y / 2)));
+                duck.setVelocity(Vector2f(0.25, 0));
+                world.AddPhysicsBody(duck);
+
+                duck.onCollision =
+                    [&drawingArrow, &world, &arrow, &duck, &ducks, &score, &popSound, &right]
+                    (PhysicsBodyCollisionResult result) {
+                    if (result.object2 == arrow) {
+                        popSound.play();
+                        drawingArrow = false;
+                        world.RemovePhysicsBody(arrow);
+                        world.RemovePhysicsBody(duck);
+                        ducks.QueueRemove(duck);
+                        score += 10;
+                    }
+
+                    if (result.object2 == right) {
+                        world.RemovePhysicsBody(duck);
+                        ducks.QueueRemove(duck);
+                    }
+                    };
+            }
             world.UpdatePhysics(deltaMS);
             MoveCrossbow(crossBow, deltaMS);
             if (Keyboard::isKeyPressed(Keyboard::Space) &&
