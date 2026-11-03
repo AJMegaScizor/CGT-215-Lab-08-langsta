@@ -148,6 +148,7 @@ int main()
                     };
             }
             world.UpdatePhysics(deltaMS);
+            // if Space is pressed shoot an arrow and subtract 1 from the total count of available arrows
             if (Keyboard::isKeyPressed(Keyboard::Space) &&
                 !drawingArrow) {
                 drawingArrow = true;
@@ -157,6 +158,7 @@ int main()
                 world.AddPhysicsBody(arrow);
        
             }
+          
 
             window.clear();
             if (drawingArrow) {
@@ -166,6 +168,7 @@ int main()
             for (PhysicsShape& duck : ducks) {
                 window.draw((PhysicsSprite&)duck);
             }
+
             window.draw(crossBow);
             Text scoreText;
             scoreText.setString(to_string(score));
@@ -191,8 +194,14 @@ int main()
     gameOverText.setPosition(400 - (sz.x / 2), 300 - (sz.y / 2));
     window.draw(gameOverText);
     window.display();
-    while (true);
-    
+    while (Keyboard::isKeyPressed(Keyboard::Space)) {
+
+    }
+    while (!Keyboard::isKeyPressed(Keyboard::Space)) {
+
+    }
+    window.close();
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
