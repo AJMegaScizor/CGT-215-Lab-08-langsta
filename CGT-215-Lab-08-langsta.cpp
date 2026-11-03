@@ -23,19 +23,6 @@ void LoadTex(Texture& tex, string filename) {
 
 
 
-void MoveCrossbow(PhysicsSprite& crossbow, int elapsedMS) {
-    if (Keyboard::isKeyPressed(Keyboard::Right)) {
-        Vector2f newPos(crossbow.getCenter());
-        newPos.x = newPos.x + (KB_SPEED * elapsedMS);
-        crossbow.setCenter(newPos);
-    }
-    if (Keyboard::isKeyPressed(Keyboard::Left)) {
-        Vector2f newPos(crossbow.getCenter());
-        newPos.x = newPos.x - (KB_SPEED * elapsedMS);
-        crossbow.setCenter(newPos);
-    }
-}
-
 Vector2f GetTextSize(Text text) {
     FloatRect r = text.getGlobalBounds();
     return Vector2f(r.width, r.height);
@@ -43,6 +30,7 @@ Vector2f GetTextSize(Text text) {
 
 int main()
 {
+    //creates window 
     RenderWindow window(VideoMode(800, 600), "Duck Hunter");
     World world(Vector2f(0, 0));
     int score(0);
@@ -133,6 +121,7 @@ int main()
             lastTime = currentTime;
             duck_clock += deltaMS;
             if (duck_clock >= 500) {
+                duck_clock = 0;
                 PhysicsSprite& duck = ducks.Create();
                 duck.setTexture(redTex);
                 Vector2f sz = duck.getSize();
@@ -159,7 +148,6 @@ int main()
                     };
             }
             world.UpdatePhysics(deltaMS);
-            MoveCrossbow(crossBow, deltaMS);
             if (Keyboard::isKeyPressed(Keyboard::Space) &&
                 !drawingArrow) {
                 drawingArrow = true;
